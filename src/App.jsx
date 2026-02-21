@@ -255,7 +255,13 @@ const CrosswordBuilder = () => {
             {/* 次の番号表示 */}
             <section className="bg-gradient-to-br from-indigo-500 to-purple-600 p-5 rounded-xl shadow-md text-white">
               <h2 className="text-sm font-bold mb-2">次の番号</h2>
-              <div className="text-4xl font-black">{nextNumber}</div>
+              <input
+                type="number"
+                min="1"
+                value={nextNumber}
+                onChange={e => setNextNumber(Math.max(1, Number(e.target.value)))}
+                className="w-full bg-transparent text-4xl font-black outline-none border-b-2 border-white/20 focus:border-white/50 transition-colors"
+              />
             </section>
           </aside>
 
