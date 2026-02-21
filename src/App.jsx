@@ -81,103 +81,126 @@ const CrosswordBuilder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-10 flex flex-col lg:flex-row justify-between items-center bg-slate-900/80 backdrop-blur-xl p-8 rounded-[2rem] shadow-2xl border border-white/5">
-          <div className="mb-6 lg:mb-0 text-center lg:text-left">
-            <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 tracking-tighter">
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 p-4 md:p-10 font-sans selection:bg-blue-500/30">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-12 flex flex-col lg:flex-row justify-between items-center bg-slate-900/60 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] -mr-32 -mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 blur-[100px] -ml-32 -mb-32"></div>
+
+          <div className="mb-8 lg:mb-0 text-center lg:text-left relative z-10">
+            <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-br from-white via-blue-400 to-indigo-600 tracking-tighter mb-3">
               CROSSWORD BUILDER
             </h1>
-            <p className="text-slate-500 text-sm mt-2 font-bold tracking-widest uppercase">Precision Grid Editor</p>
+            <div className="flex items-center gap-3 justify-center lg:justify-start">
+              <span className="h-px w-8 bg-blue-500/50"></span>
+              <p className="text-blue-400/80 text-xs font-black tracking-[0.3em] uppercase">Advanced Board Architect</p>
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
+          <div className="flex flex-wrap justify-center gap-4 relative z-10">
+            <div className="flex bg-black/40 p-2 rounded-[1.5rem] border border-white/5 shadow-2xl">
               {[
-                { id: 'black', label: '黒マス', icon: '■', color: 'bg-slate-700' },
-                { id: 'double', label: '二重マス', icon: '◎', color: 'bg-blue-500' },
-                { id: 'number', label: '番号', icon: '①', color: 'bg-emerald-500' },
-                { id: 'text', label: '文字', icon: 'A', color: 'bg-indigo-500' },
+                { id: 'black', label: '黒マス', icon: '■', activeClass: 'bg-slate-700 shadow-slate-900/50' },
+                { id: 'double', label: '二重マス', icon: '◎', activeClass: 'bg-blue-600 shadow-blue-900/50' },
+                { id: 'number', label: '番号', icon: '①', activeClass: 'bg-emerald-600 shadow-emerald-900/50' },
+                { id: 'text', label: '文字', icon: 'A', activeClass: 'bg-indigo-600 shadow-indigo-900/50' },
               ].map(m => (
                 <button
                   key={m.id}
                   onClick={() => setMode(m.id)}
                   className={`
-                    px-5 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2 text-sm font-black
-                    ${mode === m.id ? `${m.color} text-white shadow-lg scale-105` : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}
+                    px-6 py-3 rounded-2xl transition-all duration-500 flex items-center gap-3 text-sm font-bold tracking-tight
+                    ${mode === m.id ? `${m.activeClass} text-white shadow-xl scale-110 -translate-y-1` : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}
                   `}
                 >
-                  <span className="text-lg">{m.icon}</span>
+                  <span className="text-xl leading-none">{m.icon}</span>
                   <span className="hidden sm:inline">{m.label}</span>
                 </button>
               ))}
             </div>
+
             {mode === 'number' && (
-              <div className="flex items-center gap-3 bg-slate-900 px-5 py-2 rounded-2xl border border-white/5 animate-in fade-in zoom-in duration-300">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Next</span>
-                <span className="text-2xl font-mono font-black text-cyan-400">{nextNumber}</span>
-                <div className="flex flex-col gap-1">
-                  <button onClick={() => setNextNumber(n => n + 1)} className="hover:text-white text-slate-600 text-[10px]">▲</button>
-                  <button onClick={() => setNextNumber(n => Math.max(1, n - 1))} className="hover:text-white text-slate-600 text-[10px]">▼</button>
+              <div className="flex items-center gap-4 bg-slate-900/80 px-6 py-3 rounded-2xl border border-blue-500/20 shadow-[0_0_30px_rgba(59,130,246,0.1)] animate-in slide-in-from-top-4 duration-500">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Coming Next</span>
+                  <span className="text-3xl font-mono font-black text-blue-400 leading-none">{nextNumber}</span>
+                </div>
+                <div className="flex flex-col gap-1 border-l border-white/10 pl-3">
+                  <button onClick={() => setNextNumber(n => n + 1)} className="hover:text-blue-400 text-slate-600 transition-colors text-xs">▲</button>
+                  <button onClick={() => setNextNumber(n => Math.max(1, n - 1))} className="hover:text-blue-400 text-slate-600 transition-colors text-xs">▼</button>
                 </div>
               </div>
             )}
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <aside className="lg:col-span-3 space-y-6">
-            <section className="bg-slate-900/50 p-6 rounded-3xl border border-white/5 shadow-xl">
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] mb-6 text-slate-500 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
-                Dimensions
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 items-start">
+          <aside className="xl:col-span-3 space-y-8 h-full">
+            <section className="bg-slate-900/40 p-8 rounded-[2rem] border border-white/5 shadow-2xl relative group overflow-hidden">
+              <div className="absolute -right-10 -top-10 w-24 h-24 bg-blue-600/5 rounded-full blur-3xl group-hover:bg-blue-600/10 transition-all duration-700"></div>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-slate-500 flex items-center gap-3">
+                <span className="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></span>
+                Board Layout
               </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase ml-1">Rows</label>
+              <div className="grid grid-cols-1 gap-8">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rows</label>
+                    <span className="text-xs font-mono text-blue-400 font-bold">{rows}</span>
+                  </div>
+                  <input
+                    type="range" min="3" max="50" value={rows} onChange={e => setRows(Number(e.target.value))}
+                    className="w-full accent-blue-600 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                  />
                   <input
                     type="number" value={rows} onChange={e => setRows(Number(e.target.value))}
-                    className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono font-bold text-lg"
+                    className="w-full bg-black/30 border border-white/5 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-mono font-bold text-center"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase ml-1">Cols</label>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cols</label>
+                    <span className="text-xs font-mono text-blue-400 font-bold">{cols}</span>
+                  </div>
+                  <input
+                    type="range" min="3" max="50" value={cols} onChange={e => setCols(Number(e.target.value))}
+                    className="w-full accent-blue-600 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                  />
                   <input
                     type="number" value={cols} onChange={e => setCols(Number(e.target.value))}
-                    className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono font-bold text-lg"
+                    className="w-full bg-black/30 border border-white/5 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-mono font-bold text-center"
                   />
                 </div>
               </div>
             </section>
 
-            <section className="bg-gradient-to-br from-indigo-600/20 to-purple-600/20 p-8 rounded-[2rem] border border-white/10 shadow-2xl relative overflow-hidden group">
-              <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-all duration-700"></div>
-              <h3 className="text-xs font-black text-indigo-400 mb-5 flex items-center gap-2 uppercase tracking-widest">
-                Shortcut Guide
+            <section className="bg-gradient-to-br from-slate-900 to-indigo-950 p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden transition-all hover:scale-[1.02] duration-500">
+              <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent)] transition-opacity opacity-50 group-hover:opacity-100"></div>
+              <h3 className="text-[10px] font-black text-blue-300 mb-6 flex items-center gap-3 uppercase tracking-widest">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                Pro Tips
               </h3>
-              <ul className="text-[11px] text-slate-400 space-y-4 font-bold">
-                <li className="flex items-start gap-3">
-                  <span className="bg-white/10 w-5 h-5 rounded flex items-center justify-center text-xs text-indigo-300">1</span>
-                  <p>番号モードでクリックすると高速で自動採番されます。</p>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="bg-white/10 w-5 h-5 rounded flex items-center justify-center text-xs text-indigo-300">2</span>
-                  <p>文字入力後は自動で次のマスに移動します。</p>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="bg-white/10 w-5 h-5 rounded flex items-center justify-center text-xs text-indigo-300">3</span>
-                  <p>矢印キーで四方に移動して素早く編集可能です。</p>
-                </li>
-              </ul>
+              <div className="space-y-5">
+                {[
+                  { id: "1", text: "番号モードで白マスを叩くだけ。1から順に高速で埋まります。" },
+                  { id: "2", text: "文字入力は自動フォーカス移動。流れるように打ち込めます。" },
+                  { id: "3", text: "十字キーで盤面を縦横無尽に移動して編集効率アップ。" },
+                ].map(tip => (
+                  <div key={tip.id} className="flex gap-4">
+                    <span className="text-blue-500/50 font-black italic text-xs leading-none mt-0.5">{tip.id}</span>
+                    <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{tip.text}</p>
+                  </div>
+                ))}
+              </div>
             </section>
           </aside>
 
-          <main className="lg:col-span-9 flex flex-col items-center">
-            <div className="bg-slate-900/30 p-4 md:p-12 rounded-[3.5rem] border border-white/5 shadow-2xl backdrop-blur-sm overflow-auto max-w-full">
+          <main className="xl:col-span-9 flex flex-col items-center group">
+            <div className="bg-slate-900/30 p-8 md:p-14 rounded-[4rem] border border-white/5 shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)] backdrop-blur-sm overflow-auto max-w-full transition-shadow hover:shadow-[inset_0_2px_40px_rgba(59,130,246,0.05)]">
               <div
-                className="grid gap-0 bg-slate-800 border-[8px] border-slate-900 rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden"
+                className="grid gap-0 bg-slate-400 border-[10px] border-[#0a0f1d] rounded-xl shadow-[0_30px_100px_rgba(0,0,0,0.6)] overflow-hidden"
                 style={{
-                  gridTemplateColumns: `repeat(${cols}, minmax(40px, 1fr))`,
+                  gridTemplateColumns: `repeat(${cols}, minmax(42px, 1fr))`,
                   width: 'fit-content'
                 }}
               >
@@ -187,18 +210,18 @@ const CrosswordBuilder = () => {
                       key={`${r}-${c}`}
                       onClick={() => mode !== 'text' && handleCellClick(r, c)}
                       className={`
-                        w-10 h-10 md:w-14 md:h-14 relative flex items-center justify-center cursor-pointer border-[0.5px] border-slate-700 transition-all duration-300
-                        ${cell.type === 'black' ? 'bg-slate-950' : 'bg-white text-slate-900'}
-                        ${cell.isDouble ? 'bg-blue-50/50' : ''}
-                        ${mode === 'text' && cell.type === 'white' ? 'hover:bg-blue-50' : ''}
+                        w-11 h-11 md:w-16 md:h-16 relative flex items-center justify-center cursor-pointer border-[0.5px] border-slate-700 transition-all duration-300
+                        ${cell.type === 'black' ? 'bg-[#0a0f1d]' : 'bg-white text-slate-900'}
+                        ${cell.isDouble ? 'bg-blue-50/70' : ''}
+                        ${mode === 'text' && cell.type === 'white' ? 'hover:bg-blue-100' : ''}
                       `}
                     >
                       {cell.isDouble && cell.type === 'white' && (
-                        <div className="absolute inset-1.5 border-[3px] border-blue-400/30 rounded-full pointer-events-none ring-1 ring-blue-500/20"></div>
+                        <div className="absolute inset-1.5 border-[4px] border-blue-400/20 rounded-full pointer-events-none ring-1 ring-blue-500/10"></div>
                       )}
 
                       {cell.number && (
-                        <span className="absolute top-1 left-1.5 text-[10px] font-black leading-none select-none text-slate-400 tracking-tighter">
+                        <span className="absolute top-1 left-2 text-[10px] font-black leading-none select-none text-blue-500/60 tracking-tighter">
                           {cell.number}
                         </span>
                       )}
@@ -212,20 +235,26 @@ const CrosswordBuilder = () => {
                           onChange={(e) => handleTextChange(r, c, e.target.value)}
                           onKeyDown={(e) => handleKeyDown(e, r, c)}
                           onFocus={() => { if (mode === 'text') handleCellClick(r, c); }}
-                          className="w-full h-full bg-transparent text-center text-xl font-black outline-none focus:bg-blue-500/10 transition-colors caret-blue-500"
+                          className="w-full h-full bg-transparent text-center text-2xl font-black outline-none focus:bg-blue-500/10 transition-colors caret-blue-500 flex items-center justify-center"
                           maxLength={1}
                         />
                       ) : (
-                        <span className="text-xl font-black select-none tracking-tight">{cell.text}</span>
+                        <span className="text-2xl font-black select-none tracking-tight leading-none mb-1">{cell.text}</span>
                       )}
 
                       {cell.type === 'black' && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/30 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/40 pointer-events-none"></div>
                       )}
                     </div>
                   ))
                 )}
               </div>
+            </div>
+
+            <div className="mt-12 flex gap-8 items-center text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] animate-pulse">
+              <span>Ready to publish</span>
+              <span className="w-1 h-1 bg-slate-700 rounded-full"></span>
+              <span>All changes saved</span>
             </div>
           </main>
         </div>
