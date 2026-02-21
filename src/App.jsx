@@ -104,12 +104,12 @@ const CrosswordBuilder = () => {
               <h2 className="text-[9px] font-black uppercase tracking-[0.2em] mb-6 text-slate-600">Grid Controls</h2>
               <div className="space-y-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase px-1">Row Density: {rows}</label>
-                  <input type="range" min="3" max="50" value={rows} onChange={e => setRows(Number(e.target.value))} className="w-full accent-blue-500 bg-slate-800 rounded-lg h-1" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase px-1">Rows: {rows}</label>
+                  <input type="range" min="3" max="50" value={rows} onChange={e => setRows(Number(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase px-1">Col Density: {cols}</label>
-                  <input type="range" min="3" max="50" value={cols} onChange={e => setCols(Number(e.target.value))} className="w-full accent-blue-500 bg-slate-800 rounded-lg h-1" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase px-1">Cols: {cols}</label>
+                  <input type="range" min="3" max="50" value={cols} onChange={e => setCols(Number(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" />
                 </div>
               </div>
             </section>
@@ -132,7 +132,7 @@ const CrosswordBuilder = () => {
           </aside>
 
           <main className="lg:col-span-3 flex flex-col items-center">
-            <div className="bg-slate-950/40 p-8 rounded-[3rem] border border-white/5 shadow-inner backdrop-blur-sm">
+            <div className="bg-slate-950/40 p-6 md:p-10 rounded-[3rem] border border-white/5 shadow-inner backdrop-blur-sm">
               <div
                 className="grid bg-slate-700 border-8 border-slate-950 rounded-lg shadow-2xl overflow-hidden"
                 style={{ gridTemplateColumns: `repeat(${cols}, minmax(40px, 1fr))`, width: 'fit-content' }}
@@ -151,18 +151,13 @@ const CrosswordBuilder = () => {
                     {cell.isDouble && cell.type === 'white' && <div className="absolute inset-1.5 border-2 border-blue-400/20 rounded-full pointer-events-none"></div>}
                     {cell.number && <span className="absolute top-1 left-1.5 text-[8px] font-black text-blue-600/60 leading-none">{cell.number}</span>}
                     {mode === 'text' && cell.type === 'white' ? (
-                      <input id={`cell-${r}-${c}`} type="text" value={cell.text} autoComplete="off" onChange={e => handleTextChange(r, c, e.target.value)} onKeyDown={e => handleKeyDown(e, r, c)} className="w-full h-full bg-transparent text-center text-xl font-black outline-none focus:bg-blue-500/5" maxLength={1} />
+                      <input id={`cell-${r}-${c}`} type="text" value={cell.text} autoComplete="off" onChange={e => handleTextChange(r, c, e.target.value)} onKeyDown={e => handleKeyDown(e, r, c)} className="w-full h-full bg-transparent text-center text-xl font-black outline-none focus:bg-blue-500/5 caret-blue-500" maxLength={1} />
                     ) : (
                       <span className="text-xl font-black select-none pointer-events-none">{cell.text}</span>
                     )}
                   </div>
                 )))}
               </div>
-            </div>
-            <div className="mt-8 flex items-center gap-6 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">
-              <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>System Online</span>
-              <span>•</span>
-              <span>Production Build v4.2</span>
             </div>
           </main>
         </div>
