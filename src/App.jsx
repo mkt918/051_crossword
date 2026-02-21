@@ -203,6 +203,54 @@ const CrosswordBuilder = () => {
 
   const currentClueData = getClueData();
 
+  // ヒントのCSVエクスポート
+  const exportHintsToCSV = () => {
+    let csv = 'Type,Number,Clue\n';
+    Object.keys(cluesAcross).forEach(num => {
+      csv += `Across,${num},"${cluesAcross[num].replace(/"/g, '""')}"\n`;
+    });
+    Object.keys(cluesDown).forEach(num => {
+      csv += `Down,${num},"${cluesDown[num].replace(/"/g, '""')}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'crossword_hints.csv';
+    link.click();
+  };
+
+  // ヒントのCSVインポート
+  const importHintsFromCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const lines = text.trim().split('\n').slice(1);
+      const newAcross = { ...cluesAcross };
+      const newDown = { ...cluesDown };
+
+      lines.forEach(line => {
+        // カンマ区切りだが、ダブルクォート内のカンマを考慮
+        const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+        if (parts && parts.length >= 3) {
+          const type = parts[0].trim();
+          const num = parts[1].trim();
+          const clue = parts[2].trim().replace(/^"|"$/g, '').replace(/""/g, '"');
+          if (type === 'Across') newAcross[num] = clue;
+          if (type === 'Down') newDown[num] = clue;
+        }
+      });
+
+      setCluesAcross(newAcross);
+      setCluesDown(newDown);
+      alert('ヒントをインポートしました');
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 font-sans print:p-0 print:bg-white">
       <style>{`
@@ -227,9 +275,9 @@ const CrosswordBuilder = () => {
             <div className="flex flex-wrap items-center gap-2 bg-white p-1.5 rounded-2xl shadow-lg border border-blue-50">
               <button
                 onClick={() => setShowCluePanel(true)}
-                className="px-4 py-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-xl text-sm font-black shadow-md hover:scale-105 transition-transform"
+                className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl text-sm font-black shadow-md hover:scale-105 transition-transform"
               >
-                鍵の作成
+                ヒントの作成
               </button>
               <button
                 onClick={() => window.print()}
@@ -460,19 +508,34 @@ const CrosswordBuilder = () => {
           </div>
         )}
 
-        {/* 鍵作成パネル */}
+        {/* ヒント作成パネル */}
         {showCluePanel && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 no-print">
             <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-              <div className="bg-gradient-to-r from-teal-600 to-blue-700 text-white p-6">
+              <div className="bg-gradient-to-r from-indigo-600 to-blue-700 text-white p-6">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-black">鍵（ヒント）の作成</h2>
-                  <button
-                    onClick={() => setShowCluePanel(false)}
-                    className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
-                  >
-                    ✕
-                  </button>
+                  <div>
+                    <h2 className="text-2xl font-black">ヒントの作成</h2>
+                    <p className="text-blue-100 text-sm mt-1">パズルの鍵（ヒント）を入力・管理します</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={exportHintsToCSV}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl text-xs font-black transition-colors flex items-center gap-1"
+                    >
+                      <span>📥</span> CSVを書き出す
+                    </button>
+                    <label className="px-4 py-2 bg-white text-blue-700 hover:bg-blue-50 rounded-xl text-xs font-black transition-colors flex items-center gap-1 cursor-pointer">
+                      <span>📤</span> CSVを読み込む
+                      <input type="file" accept=".csv" onChange={importHintsFromCSV} className="hidden" />
+                    </label>
+                    <button
+                      onClick={() => setShowCluePanel(false)}
+                      className="text-white hover:bg-white/20 rounded-full p-2 transition-colors ml-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="p-6 overflow-y-auto flex-1 bg-gray-50">
