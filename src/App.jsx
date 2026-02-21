@@ -18,8 +18,8 @@ const CrosswordBuilder = () => {
       .then(text => {
         const lines = text.trim().split('\n').slice(1); // ヘッダーをスキップ
         const parsed = lines.map(line => {
-          const [length, genre, word, clue] = line.split(',');
-          return { length: Number(length), genre, word, clue };
+          const [length, genre, difficulty, word, clue] = line.split(',');
+          return { length: Number(length), genre, difficulty, word, clue };
         });
         setQuestions(parsed);
       })
@@ -145,11 +145,10 @@ const CrosswordBuilder = () => {
                 <button
                   key={m.id}
                   onClick={() => setMode(m.id)}
-                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                    mode === m.id
+                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${mode === m.id
                       ? `bg-gradient-to-r ${m.color} text-white shadow-lg scale-105`
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <span className="mr-1">{m.icon}</span>
                   {m.label}
@@ -206,11 +205,10 @@ const CrosswordBuilder = () => {
                       key={len}
                       onClick={() => handleLengthFilter(len)}
                       disabled={count === 0}
-                      className={`p-2 rounded-lg text-sm font-bold transition-all ${
-                        count > 0
+                      className={`p-2 rounded-lg text-sm font-bold transition-all ${count > 0
                           ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:scale-105 shadow-md'
                           : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                      }`}
+                        }`}
                     >
                       {len}文字
                       {count > 0 && <div className="text-[10px] opacity-80">{count}問</div>}
