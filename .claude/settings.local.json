@@ -3,7 +3,10 @@
     "allow": [
       "Bash(echo:*)",
       "Bash(npm run build:*)",
-      "Bash(printf:*)"
+      "Bash(printf:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh run view:*)"
     ]
   }
 }
