@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo:*)",
+      "Bash(npm run build:*)",
+      "Bash(printf:*)"
+    ]
+  }
+}
