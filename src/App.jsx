@@ -14,6 +14,15 @@ const CrosswordBuilder = () => {
   const [selectedLength, setSelectedLength] = useState(null);
   const [showQuestionPanel, setShowQuestionPanel] = useState(false);
   const [searchPattern, setSearchPattern] = useState([]); // 文字検索用パターン
+  const [cluesAcross, setCluesAcross] = useState(() => {
+    const saved = localStorage.getItem('crossword-clues-across');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [cluesDown, setCluesDown] = useState(() => {
+    const saved = localStorage.getItem('crossword-clues-down');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [showCluePanel, setShowCluePanel] = useState(false);
 
   // CSVファイルの読み込み
   useEffect(() => {
@@ -37,8 +46,10 @@ const CrosswordBuilder = () => {
       localStorage.setItem('crossword-rows', rows);
       localStorage.setItem('crossword-cols', cols);
       localStorage.setItem('crossword-nextNumber', nextNumber);
+      localStorage.setItem('crossword-clues-across', JSON.stringify(cluesAcross));
+      localStorage.setItem('crossword-clues-down', JSON.stringify(cluesDown));
     }
-  }, [grid, rows, cols, nextNumber]);
+  }, [grid, rows, cols, nextNumber, cluesAcross, cluesDown]);
 
   // グリッド初期化（データがない場合のみ、またはサイズ変更時）
   useEffect(() => {
@@ -155,33 +166,90 @@ const CrosswordBuilder = () => {
     });
   });
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 font-sans">
-      <div className="max-w-7xl mx-auto">
-        {/* ヘッダー */}
-        <header className="mb-8 bg-white p-6 rounded-2xl shadow-lg border border-blue-100">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                クロスワード作成ツール
-              </h1>
-              <p className="text-gray-500 text-sm mt-1">プロフェッショナルエディター</p>
-            </div>
+  // 盤面からカギ情報を抽出（番号と入力済みの単語）
+  const getClueData = () => {
+    const across = [];
+    const down = [];
 
-            {/* モード選択 */}
-            <div className="flex flex-wrap gap-2">
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const cell = grid[r][c];
+        if (cell.type === 'white' && cell.number) {
+          // 横のカギ抽出
+          if (c === 0 || grid[r][c - 1].type === 'black') {
+            let word = '';
+            for (let cc = c; cc < cols && grid[r][cc].type !== 'black'; cc++) {
+              word += grid[r][cc].text || '□';
+            }
+            if (word.length > 1) {
+              across.push({ number: cell.number, word, length: word.length });
+            }
+          }
+          // 縦のカギ抽出
+          if (r === 0 || grid[r - 1][c].type === 'black') {
+            let word = '';
+            for (let rr = r; rr < rows && grid[rr][c].type !== 'black'; rr++) {
+              word += grid[rr][c].text || '□';
+            }
+            if (word.length > 1) {
+              down.push({ number: cell.number, word, length: word.length });
+            }
+          }
+        }
+      }
+    }
+    return { across: across.sort((a, b) => a.number - b.number), down: down.sort((a, b) => a.number - b.number) };
+  };
+
+  const currentClueData = getClueData();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 font-sans print:p-0 print:bg-white">
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          .print-only { display: block !important; }
+          body { background: white !important; }
+          .max-w-7xl { max-width: 100% !important; margin: 0 !important; }
+          .bg-white { box-shadow: none !important; border: none !important; }
+        }
+        .print-only { display: none; }
+      `}</style>
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-8 no-print">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 tracking-tight">
+                CROSSWORD BUILDER PRO
+              </h1>
+              <p className="text-gray-500 font-bold text-xs mt-1 uppercase tracking-widest">Premium Puzzle Creator</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 bg-white p-1.5 rounded-2xl shadow-lg border border-blue-50">
+              <button
+                onClick={() => setShowCluePanel(true)}
+                className="px-4 py-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-xl text-sm font-black shadow-md hover:scale-105 transition-transform"
+              >
+                鍵の作成
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 bg-gray-800 text-white rounded-xl text-sm font-black shadow-md hover:scale-105 transition-transform"
+              >
+                印刷
+              </button>
+              <div className="h-8 w-px bg-gray-100 mx-1"></div>
               {[
-                { id: 'black', label: '黒マス', icon: '⬛', color: 'from-gray-700 to-gray-900' },
-                { id: 'double', label: '二重マス', icon: '◎', color: 'from-blue-500 to-blue-700' },
-                { id: 'number', label: '番号', icon: '①', color: 'from-emerald-500 to-emerald-700' },
-                { id: 'text', label: '文字入力', icon: 'あ', color: 'from-indigo-500 to-indigo-700' },
+                { id: 'black', label: '黒マス', icon: '⬛' },
+                { id: 'double', label: '二重マス', icon: '🔵' },
+                { id: 'number', label: '番号', icon: '🔢' },
+                { id: 'text', label: '文字', icon: '✍️' },
               ].map(m => (
                 <button
                   key={m.id}
                   onClick={() => setMode(m.id)}
-                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${mode === m.id
-                    ? `bg-gradient-to-r ${m.color} text-white shadow-lg scale-105`
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  className={`flex items-center px-4 py-2 rounded-xl text-sm font-black transition-all ${mode === m.id
+                    ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg scale-105'
+                    : 'text-gray-500 hover:bg-gray-50'
                     }`}
                 >
                   <span className="mr-1">{m.icon}</span>
@@ -329,7 +397,7 @@ const CrosswordBuilder = () => {
 
         {/* 問題選択パネル */}
         {showQuestionPanel && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 no-print">
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
                 <div className="flex justify-between items-center">
@@ -391,6 +459,145 @@ const CrosswordBuilder = () => {
             </div>
           </div>
         )}
+
+        {/* 鍵作成パネル */}
+        {showCluePanel && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 no-print">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="bg-gradient-to-r from-teal-600 to-blue-700 text-white p-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-black">鍵（ヒント）の作成</h2>
+                  <button
+                    onClick={() => setShowCluePanel(false)}
+                    className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto flex-1 bg-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* 横のカギ */}
+                  <section>
+                    <h3 className="text-lg font-black text-blue-800 mb-4 flex items-center">
+                      <span className="mr-2">➡️</span> 横のカギ
+                    </h3>
+                    <div className="space-y-4">
+                      {currentClueData.across.map(clue => (
+                        <div key={`across-${clue.number}`} className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-black">{clue.number}</span>
+                            <span className="font-black text-gray-800">{clue.word}</span>
+                            <span className="text-gray-400 text-xs">({clue.length}文字)</span>
+                          </div>
+                          <textarea
+                            value={cluesAcross[clue.number] || ''}
+                            onChange={e => setCluesAcross({ ...cluesAcross, [clue.number]: e.target.value })}
+                            placeholder="ヒントを入力してください..."
+                            className="w-full p-2 text-sm border-2 border-gray-100 rounded-lg focus:border-blue-300 outline-none resize-none h-16"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                  {/* 縦のカギ */}
+                  <section>
+                    <h3 className="text-lg font-black text-indigo-800 mb-4 flex items-center">
+                      <span className="mr-2">⬇️</span> 縦のカギ
+                    </h3>
+                    <div className="space-y-4">
+                      {currentClueData.down.map(clue => (
+                        <div key={`down-${clue.number}`} className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-black">{clue.number}</span>
+                            <span className="font-black text-gray-800">{clue.word}</span>
+                            <span className="text-gray-400 text-xs">({clue.length}文字)</span>
+                          </div>
+                          <textarea
+                            value={cluesDown[clue.number] || ''}
+                            onChange={e => setCluesDown({ ...cluesDown, [clue.number]: e.target.value })}
+                            placeholder="ヒントを入力してください..."
+                            className="w-full p-2 text-sm border-2 border-gray-100 rounded-lg focus:border-indigo-300 outline-none resize-none h-16"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              </div>
+              <div className="p-4 bg-gray-100 border-t flex justify-end">
+                <button
+                  onClick={() => setShowCluePanel(false)}
+                  className="px-8 py-2 bg-blue-600 text-white font-black rounded-xl shadow-lg hover:bg-blue-700 transition-colors"
+                >
+                  保存して閉じる
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 印刷専用セクション */}
+        <div className="print-only p-8">
+          <h1 className="text-2xl font-black mb-8 border-b-4 border-black pb-2">CROSSWORD PUZZLE</h1>
+          <div className="mb-12 flex justify-center">
+            {/* 盤面（印刷用：入力欄なし） */}
+            <div
+              className="grid gap-0 border-4 border-black"
+              style={{
+                gridTemplateColumns: `repeat(${cols}, 40px)`,
+                width: 'fit-content'
+              }}
+            >
+              {grid.map((row, r) => row.map((cell, c) => (
+                <div
+                  key={`${r}-${c}`}
+                  className={`
+                    w-[40px] h-[40px] relative flex items-center justify-center border border-black
+                    ${cell.type === 'black' ? 'bg-black' : 'bg-white'}
+                  `}
+                >
+                  {cell.number && (
+                    <span className="absolute top-0.5 left-1 text-[8px] font-black leading-none">
+                      {cell.number}
+                    </span>
+                  )}
+                  {cell.isDouble && cell.type === 'white' && (
+                    <div className="absolute inset-1 border border-black rounded-full"></div>
+                  )}
+                </div>
+              )))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-12 text-sm">
+            <div>
+              <h2 className="font-black border-b-2 border-black mb-4">＜横のカギ＞</h2>
+              <ul className="space-y-2">
+                {currentClueData.across.map(clue => (
+                  <li key={`print-across-${clue.number}`} className="flex gap-2">
+                    <span className="font-black min-w-[20px]">{clue.number}</span>
+                    <span className="flex-1">{cluesAcross[clue.number] || '（ヒント未入力）'}</span>
+                    <span className="text-[10px] text-gray-400">[{clue.length}字]</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h2 className="font-black border-b-2 border-black mb-4">＜縦のカギ＞</h2>
+              <ul className="space-y-2">
+                {currentClueData.down.map(clue => (
+                  <li key={`print-down-${clue.number}`} className="flex gap-2">
+                    <span className="font-black min-w-[20px]">{clue.number}</span>
+                    <span className="flex-1">{cluesDown[clue.number] || '（ヒント未入力）'}</span>
+                    <span className="text-[10px] text-gray-400">[{clue.length}字]</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
