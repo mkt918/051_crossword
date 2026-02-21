@@ -95,14 +95,14 @@ const CrosswordBuilder = () => {
     setGrid(newGrid);
   };
 
-  const handleTextChange = (r, c, val) => {
+  const handleTextChange = (r, c, val, isComposing) => {
     if (mode !== 'text') return;
     const newGrid = [...grid.map(row => [...row])];
     newGrid[r][c].text = val;
     setGrid(newGrid);
 
-    // 自動で次のマスへフォーカス
-    if (val && c < cols - 1 && newGrid[r][c + 1].type !== 'black') {
+    // IME入力中でない場合のみ次のマスへ移動
+    if (!isComposing && val && c < cols - 1 && newGrid[r][c + 1].type !== 'black') {
       setTimeout(() => {
         document.getElementById(`cell-${r}-${c + 1}`)?.focus();
       }, 10);
@@ -274,7 +274,8 @@ const CrosswordBuilder = () => {
                         type="text"
                         value={cell.text}
                         autoComplete="off"
-                        onChange={e => handleTextChange(r, c, e.target.value)}
+                        onChange={e => handleTextChange(r, c, e.target.value, e.nativeEvent.isComposing)}
+                        onCompositionEnd={e => handleTextChange(r, c, e.target.value, false)}
                         className="w-full h-full bg-transparent text-center text-2xl font-black text-gray-900 outline-none focus:bg-yellow-50"
                         style={{ imeMode: 'active' }}
                       />
